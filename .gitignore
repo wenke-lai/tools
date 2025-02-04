@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# reflex
+*.py[cod]
+.web
+assets/external/
+*.db
