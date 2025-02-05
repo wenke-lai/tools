@@ -4,4 +4,4 @@ from .routes.index import index
 
 
 def launch_frontend(app: App):
-    app.add_page(index)
+    app.add_page(index, route="/")
