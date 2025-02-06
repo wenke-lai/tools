@@ -1,27 +1,43 @@
-import reflex as rx
-
 from typing import Callable
 
-
-def header():
-    return (rx.heading("header"),)
+import reflex as rx
 
 
-def footer():
-    return (rx.heading("footer"),)
+def header() -> rx.Component:
+    return rx.el.header(
+        rx.heading("Header"),
+        class_name="min-h-16 p-4",
+    )
 
 
-def layout(main: Callable[[], rx.Component]) -> rx.Component:
+def footer() -> rx.Component:
+    return rx.el.footer(
+        rx.heading("Footer"),
+        rx.text(
+            "© 2024 Arcstratus All Rights Reserved.",
+            class_name="opacity-60",
+        ),
+        class_name=[
+            # layout
+            "absolute bottom-0 inset-x-0",
+            # spacing and typography
+            "p-4 text-center",
+        ],
+    )
+
+
+def main(children: Callable[[], rx.Component]) -> rx.Component:
+    return rx.el.main(
+        children(),
+    )
+
+
+def layout(children: Callable[[], rx.Component]) -> rx.Component:
     return rx.container(
         rx.vstack(
-            rx.el.header(
-                header(),
-            ),
-            rx.el.main(
-                main(),
-            ),
-            rx.el.footer(
-                footer(),
-            ),
-        )
+            header(),
+            main(children),
+            footer(),
+            class_name="items-center",
+        ),
     )
