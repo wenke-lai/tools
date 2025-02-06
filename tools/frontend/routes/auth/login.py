@@ -14,8 +14,20 @@ class LoginState(rx.State):
 def login():
     return rx.form(
         rx.vstack(
-            rx.input(placeholder="example@email.com", name="email", type="email"),
-            rx.input(placeholder="********", name="password", type="password"),
+            rx.text("Email:"),
+            rx.input(
+                placeholder="example@email.com",
+                name="email",
+                type="email",
+                class_name="w-full",
+            ),
+            rx.text("Password:"),
+            rx.input(
+                placeholder="********",
+                name="password",
+                type="password",
+                class_name="w-full",
+            ),
             rx.button("Login", type="submit"),
         ),
         on_submit=LoginState.on_submit,
