@@ -16,4 +16,4 @@ class GuardState(rx.State):
 def launch_frontend(app: rx.App):
     app.add_page(index, route="/")
     app.add_page(auth.index, route="/auth", on_load=GuardState.redirect_to_login)
-    app.add_page(auth.login, route="/auth/login")
+    app.add_page(auth.pages.login, route="/auth/login")

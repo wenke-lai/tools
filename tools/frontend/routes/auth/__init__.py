@@ -1,8 +1,7 @@
 from .index import index
-
-from .login import login
+from . import pages
 
 __all__ = [
     "index",
-    "login",
+    "pages",
 ]

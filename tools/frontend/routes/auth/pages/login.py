@@ -1,6 +1,6 @@
 import reflex as rx
 
-from .layout import layout
+from ..layout import layout
 
 
 class LoginState(rx.State):
