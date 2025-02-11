@@ -1,0 +1,58 @@
+from typing import Callable
+
+import reflex as rx
+
+
+def header() -> rx.Component:
+    return rx.el.header(
+        rx.heading("Header"),
+        class_name="min-h-16 p-4",
+    )
+
+
+def sidebar() -> rx.Component:
+    return rx.el.aside(
+        rx.heading("sidebar"),
+        class_name="min-w-64",
+    )
+
+
+from tools.frontend.libs.components import clerk
+
+
+def footer() -> rx.Component:
+    return rx.el.footer(
+        rx.heading("Footer"),
+        rx.text(
+            "© 2024 Arcstratus All Rights Reserved.",
+            class_name="opacity-60",
+        ),
+        class_name=[
+            # layout
+            "absolute bottom-0 inset-x-0",
+            # spacing and typography
+            "p-4 text-center",
+        ],
+    )
+
+
+def main(children: Callable[[], rx.Component]) -> rx.Component:
+    return rx.el.main(
+        children(),
+    )
+
+
+def layout(children: Callable[[], rx.Component]) -> rx.Component:
+    return clerk.provider(
+        rx.container(
+            rx.vstack(
+                header(),
+                rx.hstack(
+                    sidebar(),
+                    main(children),
+                ),
+                class_name="items-center",
+            ),
+        ),
+        publishable_key="pk_test_ooxx",  # todo: enhance key
+    )
