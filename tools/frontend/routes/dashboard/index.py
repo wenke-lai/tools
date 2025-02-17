@@ -9,16 +9,16 @@ from .layout import layout
 def index():
     return rx.container(
         rx.heading("welcome"),
-        clerk.signed_in(
+        clerk.control.signed_in(
             rx.text("status: logged in"),
             rx.button(
-                clerk.sign_out_button(),
+                clerk.unstyled.sign_out_button(),
             ),
         ),
-        clerk.signed_out(
+        clerk.control.signed_out(
             rx.text("status: logged out"),
             rx.button(
-                clerk.sign_in_button(),
+                clerk.unstyled.sign_in_button(),
             ),
         ),
     )

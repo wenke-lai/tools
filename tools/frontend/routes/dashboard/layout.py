@@ -2,6 +2,8 @@ from typing import Callable
 
 import reflex as rx
 
+from tools.frontend.libs.components import clerk
+
 
 def header() -> rx.Component:
     return rx.el.header(
@@ -15,9 +17,6 @@ def sidebar() -> rx.Component:
         rx.heading("sidebar"),
         class_name="min-w-64",
     )
-
-
-from tools.frontend.libs.components import clerk
 
 
 def footer() -> rx.Component:
@@ -43,7 +42,7 @@ def main(children: Callable[[], rx.Component]) -> rx.Component:
 
 
 def layout(children: Callable[[], rx.Component]) -> rx.Component:
-    return clerk.provider(
+    return clerk.clerk_provider(
         rx.container(
             rx.vstack(
                 header(),
@@ -54,5 +53,5 @@ def layout(children: Callable[[], rx.Component]) -> rx.Component:
                 class_name="items-center",
             ),
         ),
-        publishable_key="pk_test_ooxx",  # todo: enhance key
+        publishable_key="pk_test_123",
     )

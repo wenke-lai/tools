@@ -2,7 +2,6 @@ import reflex as rx
 
 from rxconfig import config
 
-from typing import Callable
 from .layout import layout
 
 
@@ -26,6 +25,7 @@ def index() -> rx.Component:
             href="https://reflex.dev/docs/getting-started/introduction/",
             is_external=True,
         ),
+        rx.button("dashboard", on_click=rx.redirect("/dashboard")),
         spacing="5",
         justify="center",
         min_height="85vh",
