@@ -2,7 +2,7 @@ from typing import Callable
 
 import reflex as rx
 
-from tools.frontend.libs.components import clerk
+from tools.frontend.libs.context import context_provider
 
 
 def header() -> rx.Component:
@@ -41,17 +41,15 @@ def main(children: Callable[[], rx.Component]) -> rx.Component:
     )
 
 
+@context_provider
 def layout(children: Callable[[], rx.Component]) -> rx.Component:
-    return clerk.clerk_provider(
-        rx.container(
-            rx.vstack(
-                header(),
-                rx.hstack(
-                    sidebar(),
-                    main(children),
-                ),
-                class_name="items-center",
+    return rx.container(
+        rx.vstack(
+            header(),
+            rx.hstack(
+                sidebar(),
+                main(children),
             ),
+            class_name="items-center",
         ),
-        publishable_key="pk_test_123",
     )

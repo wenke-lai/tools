@@ -1,5 +1,8 @@
 from typing import Callable
 
+from tools.frontend.libs.context import context_provider
+from tools.frontend.libs.components import clerk
+
 import reflex as rx
 
 
@@ -29,10 +32,13 @@ def header():
     )
 
 
+@context_provider
 def layout(main: Callable[[], rx.Component]) -> rx.Component:
     return rx.container(
         header(),
         rx.color_mode.button(position="top-right"),
         main(),
         rx.logo(),
+        clerk.control.signed_in(rx.text("logged in")),
+        clerk.control.signed_out(rx.text("known")),
     )
