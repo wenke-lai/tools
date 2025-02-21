@@ -1,42 +1,41 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+import structlog
 
 from . import clerk
 from .models import User
+from .repositories import UserRepository
+
+logger = structlog.get_logger()
 
 
-class Command(ABC):
-    @abstractmethod
-    def execute(self):
-        pass
+class Notification:
+    def send(self, subject, message):
+        logger.info("send notification", subject, message)
 
 
-@dataclass
-class RegisterUserCommand(Command):
-    session: str
-
-    def __init__(self, repository, notification, logger):
-        self.repository = repository
+class UserService:
+    def __init__(self, notification):
+        self.repository = UserRepository()
         self.notification = notification
-        self.logger = logger
 
-    def execute(self) -> User:
-        user_data = clerk.get_user(self.session)
-        user = self.repository.create_user(**user_data)
-
-        self.notification.send_welcome_email(user.email)
-
-        self.logger.info(user.id, "registered")
+    def register(self, session: str) -> User:
+        info = clerk.get_user_info(session)
+        user = self.repository.create_user(info)
+        self.notification.send(user.username, "welcome")
         return user
 
+    def login(self, session: str) -> tuple[str, bool]:
+        created = False
+        token = clerk.decode_session_token(session)
+        user = self.repository.get_user(provider_id=token.sub)
 
-class UserCommandFactory:
-    def __init__(self, repository, notification, logger):
-        self.repository = repository
-        self.notification = notification
-        self.logger = logger
+        # create the user
+        if not user:
+            user = self.register(user_id=token.sub)
+            created = True
 
-    def create_register_command(self, session: str) -> RegisterUserCommand:
-        cmd = RegisterUserCommand(self.repository, self.notification, self.logger)
-        cmd.session = session
-        return cmd
+        access_token = self.repository.login_user(user_id=user.id)
+        return access_token, created
+
+    def logout(self, session: str) -> None:
+        token = clerk.decode_session_token(session)
+        self.repository.revoke_access_token(user_id=token.sub)

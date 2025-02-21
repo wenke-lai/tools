@@ -1,15 +1,11 @@
 import os
 from functools import lru_cache
-from typing import TYPE_CHECKING
 
 import jwt
 import structlog
 from clerk_backend_api import Clerk
+from clerk_backend_api.models import Keys, User
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from clerk_backend_api.models import Keys, User
-
 
 logger = structlog.get_logger()
 
@@ -29,6 +25,7 @@ def get_jwks(bearer_auth: str) -> Keys:
 
     clerk = get_clerk(bearer_auth)
     response = clerk.jwks.get()
+    logger.info("jwks", response=response)
     return response.keys[0]
 
 
@@ -68,6 +65,6 @@ def revoke_session(session_id: str):
     clerk.sessions.revoke(session_id=session_id)
 
 
-def get_user(user_id: str) -> User:
+def get_user_info(user_id: str) -> User:
     clerk = get_clerk(CLERK_SECRET_KEY)
     return clerk.users.get(user_id=user_id)
