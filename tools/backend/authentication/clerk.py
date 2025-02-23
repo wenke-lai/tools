@@ -1,10 +1,9 @@
 import os
-from functools import lru_cache
 
 import jwt
 import structlog
-from clerk_backend_api import Clerk
-from clerk_backend_api.models import Keys, User
+from clerk_backend_api import Clerk, models
+from jwt import PyJWK, PyJWKClient
 from pydantic import BaseModel
 
 logger = structlog.get_logger()
@@ -12,21 +11,17 @@ logger = structlog.get_logger()
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 
 
-@lru_cache
-def get_clerk(bearer_auth: str) -> Clerk:
-    logger.info("called `get_clerk()`")
+def get_jwks(token: str) -> tuple[PyJWK, str]:
+    url = "https://api.clerk.com/v1/jwks"
+    headers = {
+        "Authorization": f"Bearer {CLERK_SECRET_KEY}",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    }
 
-    return Clerk(bearer_auth)
-
-
-@lru_cache
-def get_jwks(bearer_auth: str) -> Keys:
-    logger.info("called `get_jwks()`")
-
-    clerk = get_clerk(bearer_auth)
-    response = clerk.jwks.get()
-    logger.info("jwks", response=response)
-    return response.keys[0]
+    client = PyJWKClient(url, headers=headers)
+    signing_key = client.get_signing_key_from_jwt(token=token)
+    return signing_key, "RS256"
 
 
 class ClerkSessionToken(BaseModel):
@@ -53,18 +48,20 @@ class ClerkSessionToken(BaseModel):
 
 
 def decode_session_token(session_token: str) -> ClerkSessionToken:
-    # todo: should we cache this token?
-
-    key = get_jwks(CLERK_SECRET_KEY)  # cache
-    payload = jwt.decode(session_token, key.n, algorithms=[key.alg])
+    signing_key, algorithm = get_jwks(session_token)
+    payload = jwt.decode(session_token, signing_key, algorithms=[algorithm])
     return ClerkSessionToken(**payload)
 
 
+def get_user_info(user_id: str) -> models.User | None:
+    with Clerk(bearer_auth=CLERK_SECRET_KEY) as clerk:
+        user = clerk.users.get(user_id=user_id)
+        logger.info("info", user=user)
+        return user
+
+
+"""
 def revoke_session(session_id: str):
     clerk = get_clerk(CLERK_SECRET_KEY)
     clerk.sessions.revoke(session_id=session_id)
-
-
-def get_user_info(user_id: str) -> User:
-    clerk = get_clerk(CLERK_SECRET_KEY)
-    return clerk.users.get(user_id=user_id)
+"""
