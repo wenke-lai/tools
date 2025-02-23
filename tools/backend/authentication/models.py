@@ -6,8 +6,10 @@ import sqlmodel
 
 
 class User(rx.Model, table=True):
-    provider_id: str
+    provider_user_id: str
+
     email: str
+    username: str | None = None
     created_at: datetime.datetime = sqlmodel.Field(
         default=None,
         sa_column=sqlalchemy.Column(
